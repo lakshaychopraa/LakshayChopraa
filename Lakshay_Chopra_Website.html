@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lakshay Chopra — CoE Portfolio</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --gold: #e8a045;
+    --gold-dim: #c8803a;
+    --gold-pale: #f5ead0;
+    --text-muted: #a09070;
+    --text-dim: #887755;
+    --card-bg: rgba(15,10,5,0.75);
+    --card-border: rgba(255,180,80,0.12);
+  }
+  html { scroll-behavior: smooth; }
+  body { background: #080604; font-family: 'Segoe UI', system-ui, sans-serif; overflow-x: hidden; color: #e8dcc8; }
+
+  /* ── CANVAS ── */
+  #canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
+  canvas { display: block; }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.1rem 6%;
+    background: linear-gradient(to bottom, rgba(8,6,4,0.85), transparent);
+    backdrop-filter: blur(6px);
+  }
+  .nav-logo { font-size: 0.78rem; font-weight: 800; letter-spacing: 0.22em; text-transform: uppercase; color: #c8a060; }
+  .nav-links { display: flex; gap: 2rem; }
+  .nav-links a { color: #887755; font-size: 0.72rem; text-decoration: none; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; transition: color 0.25s; }
+  .nav-links a:hover { color: #e8a045; }
+
+  /* ── PROGRESS ── */
+  #progress-bar { position: fixed; top: 0; left: 0; height: 2px; background: linear-gradient(to right, #c8703a, #f0c060); z-index: 200; width: 0%; transition: width 0.12s; }
+
+  /* ── CURSOR GLOW ── */
+  #cursor-glow {
+    position: fixed; pointer-events: none; z-index: 5;
+    width: 240px; height: 240px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,140,40,0.07) 0%, transparent 70%);
+    transform: translate(-50%,-50%); transition: left 0.08s, top 0.08s;
+  }
+
+  /* ── SCROLL HINT ── */
+  .scroll-hint {
+    position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    color: #665540; font-size: 0.65rem; letter-spacing: 0.18em; text-transform: uppercase;
+    z-index: 20; transition: opacity 0.5s;
+  }
+  .scroll-arrow { width: 1px; height: 36px; background: linear-gradient(to bottom, rgba(200,150,60,0.55), transparent); }
+  @keyframes breathe { 0%,100%{opacity:0.4} 50%{opacity:0.9} }
+  .scroll-hint { animation: breathe 2.2s ease-in-out infinite; }
+
+  /* ── SCROLL CONTENT ── */
+  #scroll-container { position: relative; z-index: 10; pointer-events: none; }
+  .section { min-height: 100vh; display: flex; align-items: center; padding: 0 7%; pointer-events: none; }
+  .section-content { max-width: 520px; pointer-events: auto; }
+  .section-left  { justify-content: flex-start; }
+  .section-right { justify-content: flex-end; }
+  .section-center { justify-content: center; }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    padding: 0 6%;
+    gap: 4rem;
+    pointer-events: none;
+  }
+  .hero-image-col {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+    position: relative;
+  }
+  .avatar-frame {
+    position: relative;
+    width: clamp(260px, 32vw, 440px);
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 1px rgba(200,140,50,0.18),
+      0 0 60px rgba(200,100,30,0.2),
+      0 40px 80px rgba(0,0,0,0.7);
+  }
+  .avatar-frame img {
+    width: 100%;
+    display: block;
+    filter: saturate(1.05) contrast(1.02);
+  }
+  .avatar-frame::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(8,6,4,0.55) 0%, transparent 45%);
+    z-index: 1;
+    pointer-events: none;
+  }
+  .avatar-badge {
+    position: absolute; bottom: 1.2rem; left: 50%; transform: translateX(-50%);
+    z-index: 2;
+    background: rgba(8,6,4,0.82);
+    border: 1px solid rgba(200,140,50,0.25);
+    border-radius: 100px;
+    padding: 0.38rem 1.1rem;
+    font-size: 0.68rem;
+    color: #c8a050;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    backdrop-filter: blur(10px);
+  }
+  .hero-glow-ring {
+    position: absolute;
+    width: clamp(280px, 35vw, 480px);
+    height: clamp(280px, 35vw, 480px);
+    border-radius: 50%;
+    border: 1px solid rgba(200,120,40,0.1);
+    animation: spin-slow 18s linear infinite;
+  }
+  .hero-glow-ring::after {
+    content: '';
+    position: absolute; top: -1px; left: 30%;
+    width: 40%; height: 2px;
+    background: linear-gradient(to right, transparent, #d4903a, transparent);
+    border-radius: 100px;
+  }
+  @keyframes spin-slow { to { transform: rotate(360deg); } }
+
+  .hero-text-col { pointer-events: auto; }
+  .hero-eyebrow { font-size: 0.68rem; letter-spacing: 0.24em; text-transform: uppercase; color: #c8803a; margin-bottom: 0.8rem; }
+  .hero-title {
+    font-size: clamp(2.6rem, 5.5vw, 4.2rem);
+    font-weight: 900;
+    line-height: 1.0;
+    letter-spacing: -0.04em;
+    color: #f5ead0;
+    text-shadow: 0 0 80px rgba(255,130,40,0.18);
+  }
+  .hero-title span { color: var(--gold); }
+  .hero-role { font-size: 0.9rem; color: #a09070; margin-top: 1rem; line-height: 1.65; }
+  .hero-cta {
+    display: inline-flex; align-items: center; gap: 8px;
+    margin-top: 2rem;
+    padding: 0.6rem 1.4rem;
+    border: 1px solid rgba(200,130,50,0.3);
+    border-radius: 100px;
+    font-size: 0.73rem;
+    color: #e8a045;
+    letter-spacing: 0.1em;
+    backdrop-filter: blur(8px);
+    background: rgba(200,100,30,0.06);
+    cursor: default;
+  }
+  .dot-live { width: 6px; height: 6px; background: #e8a045; border-radius: 50%; animation: blink 1.6s ease-in-out infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 18px;
+    padding: 2rem 2rem 1.8rem;
+    backdrop-filter: blur(22px);
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.55s ease, transform 0.55s ease;
+  }
+  .card.visible { opacity: 1; transform: translateY(0); }
+  .glow-line { width: 36px; height: 2px; background: var(--gold-dim); border-radius: 2px; margin-bottom: 0.9rem; box-shadow: 0 0 10px rgba(200,120,50,0.5); }
+  .card-eyebrow { font-size: 0.62rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.5rem; }
+  .card-title { font-size: 1.35rem; font-weight: 700; color: #f0e0c0; margin-bottom: 0.75rem; }
+  .card-body { font-size: 0.86rem; line-height: 1.72; color: #a09070; }
+  .stat-row { display: flex; gap: 0.9rem; margin-top: 1.2rem; flex-wrap: wrap; }
+  .stat {
+    background: rgba(255,140,40,0.07);
+    border: 1px solid rgba(255,140,40,0.14);
+    border-radius: 10px; padding: 0.65rem 1rem;
+  }
+  .stat-val { font-size: 1.15rem; font-weight: 800; color: var(--gold); }
+  .stat-lbl { font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 2px; }
+
+  /* ── IMPACT GRID ── */
+  .impact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; margin-top: 1rem; }
+  .impact-card {
+    background: rgba(255,140,40,0.05);
+    border: 1px solid rgba(255,140,40,0.11);
+    border-radius: 12px; padding: 1.1rem; text-align: center;
+  }
+  .impact-num { font-size: 1.75rem; font-weight: 900; color: #f0a040; line-height: 1; }
+  .impact-desc { font-size: 0.65rem; color: var(--text-dim); margin-top: 0.4rem; text-transform: uppercase; letter-spacing: 0.08em; }
+
+  /* ── CONTACT PANEL ── */
+  #contact-panel {
+    position: fixed; bottom: 2.5rem; left: 50%; transform: translateX(-50%);
+    background: rgba(8,6,4,0.94);
+    border: 1px solid rgba(200,150,60,0.22);
+    border-radius: 18px; padding: 1.6rem 2.2rem;
+    backdrop-filter: blur(28px);
+    z-index: 150; display: none; min-width: 320px; text-align: center;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,160,60,0.08);
+  }
+  #contact-panel .panel-eyebrow { font-size: 0.6rem; color: var(--text-dim); letter-spacing: 0.22em; text-transform: uppercase; margin-bottom: 1rem; }
+  .typewriter { font-size: 0.88rem; color: #d4a860; font-family: 'Courier New', monospace; min-height: 110px; line-height: 1.8; }
+  #contact-close { position: absolute; top: 10px; right: 14px; cursor: pointer; color: #665540; font-size: 1.1rem; background: none; border: none; padding: 4px 8px; }
+  #contact-close:hover { color: #d4a060; }
+
+  .mug-hint { display: flex; align-items: center; gap: 7px; font-size: 0.7rem; color: #665540; margin-top: 1.2rem; }
+  .mug-hint svg { opacity: 0.55; flex-shrink: 0; }
+
+  /* ── SECTION SPACER ── */
+  .spacer { height: 15vh; }
+</style>
+</head>
+<body>
+
+<div id="cursor-glow"></div>
+<div id="progress-bar"></div>
+
+<nav>
+  <div class="nav-logo">LC · Portfolio</div>
+  <div class="nav-links">
+    <a onclick="scrollTo(0)">Home</a>
+    <a onclick="scrollToId('exp-sbi')">SBI Card</a>
+    <a onclick="scrollToId('exp-hsbc')">HSBC</a>
+    <a onclick="scrollToId('exp-cap')">Capgemini</a>
+    <a onclick="scrollToId('impact')">Impact</a>
+    <a onclick="showContact()">Contact</a>
+  </div>
+</nav>
+
+<div id="canvas-container">
+  <canvas id="three-canvas"></canvas>
+</div>
+
+<div id="scroll-container">
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-image-col">
+      <div class="hero-glow-ring"></div>
+      <div class="avatar-frame">
+        <img src="avatar.jpeg" alt="Lakshay Chopra — 3D Avatar" />
+        <div class="avatar-badge">● Available for opportunities</div>
+      </div>
+    </div>
+    <div class="hero-text-col">
+      <div class="hero-eyebrow"></div>
+      <h1 class="hero-title">Lakshay<br><span>Chopra</span></h1>
+      <p class="hero-role">
+        Program Manager · AI &amp; Automation CoE<br>
+        Building scalable automation at enterprise scale.<br>
+        SBI Card &nbsp;·&nbsp; HSBC &nbsp;·&nbsp; Capgemini
+      </p>
+      <div class="hero-cta"><div class="dot-live"></div> ▸ Scroll to explore</div>
+    </div>
+  </section>
+
+  <!-- SBI CARD -->
+  <section class="section section-left" id="exp-sbi">
+    <div class="section-content card">
+      <div class="glow-line"></div>
+      <div class="card-eyebrow">SBI Card · 2025 – Present</div>
+      <div class="card-title">Vector-Based Search Implementation</div>
+      <div class="card-body">Led the Centre of Excellence for AI &amp; Automation at SBI Card, architecting a semantic vector search system that transformed query performance across enterprise knowledge bases. </div>
+      <div class="stat-row">
+        <div class="stat"><div class="stat-val">40s → 10s</div><div class="stat-lbl">Query Time</div></div>
+        <div class="stat"><div class="stat-val">75%</div><div class="stat-lbl">Faster Search</div></div>
+        <div class="stat"><div class="stat-val">₹3.94 Cr</div><div class="stat-lbl">Business Benefit</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HSBC -->
+  <section class="section section-right" id="exp-hsbc">
+    <div class="section-content card">
+      <div class="glow-line"></div>
+      <div class="card-eyebrow">HSBC · 2023 – 2025</div>
+      <div class="card-title">Enterprise Bot Governance</div>
+      <div class="card-body">Governed a portfolio of 176+ RPA bots across global HSBC operations. Established CoE maturity frameworks, compliance controls, and performance monitoring dashboards and driving 30% global shrinkage reduction across processes.</div>
+      <div class="stat-row">
+        <div class="stat"><div class="stat-val">176+</div><div class="stat-lbl">Bots Governed</div></div>
+        <div class="stat"><div class="stat-val">30%</div><div class="stat-lbl">Shrinkage Reduced</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CAPGEMINI -->
+  <section class="section section-left" id="exp-cap">
+    <div class="section-content card">
+      <div class="glow-line"></div>
+      <div class="card-eyebrow">Capgemini · 2022 – 2023</div>
+      <div class="card-title">Solution Architecture &amp; Team Leadership</div>
+      <div class="card-body">Drove RPA solution architecture and cross-functional team leadership for enterprise clients. Established automation best practices, built CoE governance models, and delivered high-complexity implementations end-to-end.</div>
+      <div class="stat-row">
+        <div class="stat"><div class="stat-val">CoE</div><div class="stat-lbl">Architecture</div></div>
+        <div class="stat"><div class="stat-val">Multi-Org</div><div class="stat-lbl">Team Lead</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- IMPACT GALLERY -->
+  <section class="section section-center" id="impact">
+    <div class="section-content card" style="max-width:600px;width:100%;">
+      <div class="glow-line"></div>
+      <div class="card-eyebrow">Impact Gallery · Holographic Metrics</div>
+      <div class="card-title">Numbers that moved the needle</div>
+      <div class="impact-grid">
+        <div class="impact-card"><div class="impact-num">₹3.94Cr</div><div class="impact-desc">Business benefit · SBI Card</div></div>
+        <div class="impact-card"><div class="impact-num">75%</div><div class="impact-desc">Search time reduction</div></div>
+        <div class="impact-card"><div class="impact-num">176+</div><div class="impact-desc">Bots governed · HSBC</div></div>
+        <div class="impact-card"><div class="impact-num">30%</div><div class="impact-desc">Global shrinkage reduced</div></div>
+      </div>
+      <div class="mug-hint">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 16h10V7H7v9zm0 0v2a2 2 0 002 2h6a2 2 0 002-2v-2M17 10h2a2 2 0 010 4h-2"/></svg>
+        Click the 3D coffee mug — or the Contact link above — to say hello
+      </div>
+    </div>
+  </section>
+
+  <div class="spacer"></div>
+</div>
+
+<div class="scroll-hint" id="scroll-hint">
+  <div class="scroll-arrow"></div>
+  <span>Scroll</span>
+</div>
+
+<div id="contact-panel">
+  <button id="contact-close" onclick="hideContact()">✕</button>
+  <div class="panel-eyebrow">Say hello · Lakshay Chopra</div>
+  <div class="typewriter" id="typewriter-text"></div>
+</div>
+
+<!-- THREE.JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+/* ───── RENDERER ───── */
+const canvas = document.getElementById('three-canvas');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 0.85;
+
+/* ───── SCENE ───── */
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x070503);
+scene.fog = new THREE.FogExp2(0x070503, 0.038);
+
+const camera = new THREE.PerspectiveCamera(52, window.innerWidth / window.innerHeight, 0.1, 100);
+camera.position.set(0, 1.4, 4.8);
+camera.lookAt(0, 1.2, 0);
+
+/* ───── LIGHTS ───── */
+scene.add(new THREE.AmbientLight(0x1a1005, 0.35));
+
+const deskLamp = new THREE.PointLight(0xff8c30, 4.0, 5.5);
+deskLamp.position.set(-1.45, 1.65, 0.5);
+deskLamp.castShadow = true;
+scene.add(deskLamp);
+
+const rimLight = new THREE.DirectionalLight(0x304878, 0.45);
+rimLight.position.set(2, 3, -2);
+scene.add(rimLight);
+
+const fillLight = new THREE.PointLight(0x1a3040, 0.9, 9);
+fillLight.position.set(2.5, 2, 2);
+scene.add(fillLight);
+
+const screenGlow = new THREE.PointLight(0x2060b0, 1.4, 3.5);
+screenGlow.position.set(1.3, 1.5, -0.3);
+scene.add(screenGlow);
+
+/* ───── HELPERS ───── */
+const mat = (c, r=0.7, m=0) => new THREE.MeshStandardMaterial({ color:c, roughness:r, metalness:m });
+
+const group = new THREE.Group();
+scene.add(group);
+
+/* DESK */
+const desk = new THREE.Mesh(new THREE.BoxGeometry(4.2, 0.08, 1.7), mat(0x3a2510, 0.6, 0.1));
+desk.position.set(0, 0.5, 0.3);
+desk.receiveShadow = true;
+group.add(desk);
+
+/* WALLS / FLOOR */
+const wallBack = new THREE.Mesh(new THREE.PlaneGeometry(9, 6), mat(0x120e09, 0.95));
+wallBack.position.set(0, 2, -1.6);
+group.add(wallBack);
+
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(9, 7), mat(0x0b0806, 0.95));
+floor.rotation.x = -Math.PI / 2;
+floor.position.y = -0.22;
+floor.receiveShadow = true;
+group.add(floor);
+
+/* SHELF */
+const shelfMat = mat(0x4a3018, 0.7, 0.05);
+for (let i = 0; i < 3; i++) {
+  const s = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.055, 0.3), shelfMat);
+  s.position.set(-1.55, 1.38 + i * 0.56, -0.82);
+  group.add(s);
+}
+[0x8b2020, 0x204080, 0x206040, 0x806020, 0x602060, 0x305050].forEach((c, i) => {
+  const bk = new THREE.Mesh(new THREE.BoxGeometry(0.075, 0.33+Math.random()*0.1, 0.22), mat(c, 0.9));
+  bk.position.set(-1.74 + i*0.15, 1.62, -0.83);
+  group.add(bk);
+});
+
+/* COFFEE MUG */
+const mugGeo = new THREE.CylinderGeometry(0.1, 0.08, 0.17, 20);
+const mug = new THREE.Mesh(mugGeo, mat(0xddd0b8, 0.45, 0.05));
+mug.position.set(-0.55, 0.585, 0.6);
+mug.castShadow = true;
+mug.userData.isMug = true;
+group.add(mug);
+
+const mugCoffee = new THREE.Mesh(new THREE.CylinderGeometry(0.088, 0.088, 0.01, 16),
+  mat(0x3a1a08, 0.9));
+mugCoffee.position.set(-0.55, 0.675, 0.6);
+group.add(mugCoffee);
+
+/* Handle */
+const handlePts = [];
+for (let a = 0; a <= Math.PI; a += Math.PI/8) {
+  handlePts.push(new THREE.Vector3(Math.cos(a)*0.055, Math.sin(a)*0.058 - 0.002, 0));
+}
+const handleGeo = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(handlePts), 12, 0.012, 8);
+const mugHandle = new THREE.Mesh(handleGeo, mat(0xddd0b8, 0.45));
+mugHandle.position.set(-0.44, 0.575, 0.6);
+mugHandle.userData.isMug = true;
+group.add(mugHandle);
+
+/* Steam */
+const steamArr = [];
+for (let i = 0; i < 9; i++) {
+  const sm = new THREE.Mesh(
+    new THREE.SphereGeometry(0.013, 6, 6),
+    new THREE.MeshStandardMaterial({ color:0xffffff, transparent:true, opacity:0.12 })
+  );
+  sm.position.set(-0.55 + (Math.random()-0.5)*0.04, 0.69 + i*0.075, 0.6);
+  sm.userData.baseY = sm.position.y;
+  scene.add(sm);
+  steamArr.push(sm);
+}
+
+/* LAPTOP */
+const laptopBase = new THREE.Mesh(new THREE.BoxGeometry(0.68, 0.018, 0.46), mat(0x252525, 0.3, 0.8));
+laptopBase.position.set(0.9, 0.54, 0.52);
+group.add(laptopBase);
+
+const laptopLid = new THREE.Mesh(new THREE.BoxGeometry(0.68, 0.4, 0.014), mat(0x252525, 0.3, 0.8));
+laptopLid.position.set(0.9, 0.75, 0.31);
+laptopLid.rotation.x = Math.PI * 0.14;
+group.add(laptopLid);
+
+const laptopScreen = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.36, 0.005),
+  new THREE.MeshStandardMaterial({ color:0x182a45, emissive:0x0e1c30, emissiveIntensity:0.55, roughness:0.1 }));
+laptopScreen.position.set(0.9, 0.75, 0.315);
+laptopScreen.rotation.x = Math.PI * 0.14;
+group.add(laptopScreen);
+
+/* MONITOR */
+const monitorStand = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.28, 8), mat(0x1a1a1a, 0.5, 0.7));
+monitorStand.position.set(1.2, 0.64, -0.22);
+group.add(monitorStand);
+
+const monitorMesh = new THREE.Mesh(new THREE.BoxGeometry(1.05, 0.64, 0.04), mat(0x1a1a1a, 0.4, 0.7));
+monitorMesh.position.set(1.2, 1.13, -0.24);
+group.add(monitorMesh);
+
+const monitorScreen = new THREE.Mesh(new THREE.BoxGeometry(0.98, 0.58, 0.005),
+  new THREE.MeshStandardMaterial({ color:0x0c1824, emissive:0x091225, emissiveIntensity:0.85, roughness:0.08 }));
+monitorScreen.position.set(1.2, 1.13, -0.215);
+group.add(monitorScreen);
+
+/* LAMP */
+group.add(new THREE.Mesh(new THREE.CylinderGeometry(0.011, 0.011, 0.65, 8), mat(0x3a3028, 0.4, 0.6))).position?.set(-1.4, 0.82, 0.5);
+// redo properly:
+const lampPole = new THREE.Mesh(new THREE.CylinderGeometry(0.011, 0.011, 0.65, 8), mat(0x3a3028, 0.4, 0.6));
+lampPole.position.set(-1.4, 0.82, 0.5);
+group.add(lampPole);
+
+const lampHead = new THREE.Mesh(new THREE.ConeGeometry(0.13, 0.18, 14), mat(0x5a4830, 0.5, 0.3));
+lampHead.position.set(-1.32, 1.22, 0.5);
+lampHead.rotation.z = 0.3;
+group.add(lampHead);
+
+const lampBulb = new THREE.Mesh(new THREE.SphereGeometry(0.038, 10, 10),
+  new THREE.MeshStandardMaterial({ color:0xffcc60, emissive:0xffaa30, emissiveIntensity:3.5 }));
+lampBulb.position.set(-1.26, 1.15, 0.5);
+group.add(lampBulb);
+
+/* ── AVATAR HEAD ── */
+const headGroup = new THREE.Group();
+headGroup.position.set(-0.6, 1.22, 0.85);
+group.add(headGroup);
+
+const skinMat = new THREE.MeshStandardMaterial({ color:0xc8a080, roughness:0.65, metalness:0.0 });
+
+const head = new THREE.Mesh(new THREE.SphereGeometry(0.21, 32, 24), skinMat);
+headGroup.add(head);
+
+const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.095, 0.11, 14), skinMat);
+neck.position.set(0, -0.165, 0);
+headGroup.add(neck);
+
+const body = new THREE.Mesh(new THREE.CylinderGeometry(0.21, 0.25, 0.52, 18), mat(0x191919, 0.9));
+body.position.set(0, -0.37, 0);
+headGroup.add(body);
+
+/* Eyes */
+[[-0.082,0.033,0.183],[0.082,0.033,0.183]].forEach(([x,y,z]) => {
+  const eg = new THREE.Group(); eg.position.set(x,y,z);
+  eg.add(new THREE.Mesh(new THREE.SphereGeometry(0.033,12,12), new THREE.MeshStandardMaterial({color:0xffffff})));
+  const p = new THREE.Mesh(new THREE.SphereGeometry(0.017,8,8), new THREE.MeshStandardMaterial({color:0x120600}));
+  p.position.z = 0.018; eg.add(p); headGroup.add(eg);
+});
+
+/* Glasses */
+const glassesGroup = new THREE.Group();
+[[-0.082,0.033,0.205],[0.082,0.033,0.205]].forEach(([x,y,z]) => {
+  const fr = new THREE.Mesh(new THREE.TorusGeometry(0.04,0.006,8,22), mat(0x100c06, 0.5, 0.3));
+  fr.position.set(x,y,z); fr.rotation.x = 0.05; glassesGroup.add(fr);
+});
+const br = new THREE.Mesh(new THREE.CylinderGeometry(0.003,0.003,0.048,6), mat(0x100c06, 0.5, 0.3));
+br.rotation.z = Math.PI/2; br.position.set(0, 0.033, 0.206); glassesGroup.add(br);
+headGroup.add(glassesGroup);
+
+/* Beard */
+const beard = new THREE.Mesh(
+  new THREE.SphereGeometry(0.115, 16, 12, 0, Math.PI*2, 0.52, Math.PI*0.38),
+  new THREE.MeshStandardMaterial({ color:0x1a0f08, roughness:0.95 })
+);
+beard.position.set(0, -0.055, 0.14); beard.rotation.x = 0.28;
+headGroup.add(beard);
+
+/* Eyebrows */
+[[-0.082,0.09,0.185],[0.082,0.09,0.185]].forEach(([x,y,z]) => {
+  const eb = new THREE.Mesh(new THREE.BoxGeometry(0.055,0.008,0.015), mat(0x1a0f08, 0.9));
+  eb.position.set(x,y,z); headGroup.add(eb);
+});
+
+/* ───── MOUSE TRACKING ───── */
+const mouse = { x:0, y:0 };
+const targetRot = { x:0, y:0 };
+const curRot = { x:0, y:0 };
+
+document.addEventListener('mousemove', e => {
+  mouse.x = (e.clientX/window.innerWidth  - 0.5) * 2;
+  mouse.y = -(e.clientY/window.innerHeight - 0.5) * 2;
+  targetRot.y = mouse.x * 0.32;
+  targetRot.x = mouse.y * 0.18;
+  const g = document.getElementById('cursor-glow');
+  g.style.left = e.clientX + 'px';
+  g.style.top  = e.clientY + 'px';
+});
+
+/* ───── SCROLL ───── */
+window.addEventListener('scroll', () => {
+  const maxS = document.documentElement.scrollHeight - window.innerHeight;
+  document.getElementById('progress-bar').style.width = (window.scrollY / maxS * 100) + '%';
+  document.getElementById('scroll-hint').style.opacity = window.scrollY > 80 ? '0' : '1';
+
+  document.querySelectorAll('.card').forEach(card => {
+    const r = card.getBoundingClientRect();
+    if (r.top < window.innerHeight * 0.82) card.classList.add('visible');
+  });
+});
+
+/* ───── RAYCASTER (mug click) ───── */
+const rc = new THREE.Raycaster();
+const m2 = new THREE.Vector2();
+
+renderer.domElement.addEventListener('click', e => {
+  m2.x = (e.clientX/window.innerWidth)*2 - 1;
+  m2.y = -(e.clientY/window.innerHeight)*2 + 1;
+  rc.setFromCamera(m2, camera);
+  if (rc.intersectObjects(group.children, true).find(h => h.object.userData.isMug)) showContact();
+});
+
+renderer.domElement.addEventListener('mousemove', e => {
+  m2.x = (e.clientX/window.innerWidth)*2 - 1;
+  m2.y = -(e.clientY/window.innerHeight)*2 + 1;
+  rc.setFromCamera(m2, camera);
+  document.body.style.cursor =
+    rc.intersectObjects(group.children,true).find(h=>h.object.userData.isMug) ? 'pointer' : 'default';
+});
+
+/* ───── CAMERA WAYPOINTS ───── */
+const waypoints = [
+  { p:[0,1.45,4.8],  l:[0,1.2,0]    },
+  { p:[-1.0,1.4,4.0],l:[-0.4,1.1,0] },
+  { p:[0.9,1.5,4.0], l:[0.4,1.1,0]  },
+  { p:[-0.6,1.6,3.8],l:[0,1.2,0]    },
+  { p:[0,1.75,3.4],  l:[0,1.1,0]    },
+];
+let camIdx = 0;
+
+document.querySelectorAll('.section').forEach((sec, i) => {
+  ScrollTrigger.create({
+    trigger: sec, start:'top 65%',
+    onEnter:     () => { camIdx = Math.min(i+1, waypoints.length-1); },
+    onEnterBack: () => { camIdx = Math.max(i-1, 0); }
+  });
+});
+
+/* ───── ANIMATE ───── */
+let t = 0;
+function animate() {
+  requestAnimationFrame(animate);
+  t += 0.016;
+
+  curRot.x += (targetRot.x - curRot.x) * 0.055;
+  curRot.y += (targetRot.y - curRot.y) * 0.055;
+  headGroup.rotation.y = curRot.y;
+  headGroup.rotation.x = curRot.x * 0.45;
+
+  const wp = waypoints[camIdx];
+  camera.position.x += (wp.p[0] - camera.position.x) * 0.038;
+  camera.position.y += (wp.p[1] - camera.position.y) * 0.038;
+  camera.position.z += (wp.p[2] - camera.position.z) * 0.038;
+  camera.lookAt(wp.l[0], wp.l[1], wp.l[2]);
+
+  headGroup.position.y = 1.22 + Math.sin(t * 0.42) * 0.007;
+  body.scale.y = 1 + Math.sin(t * 0.42) * 0.004;
+
+  deskLamp.intensity = 4.0 + Math.sin(t * 2.2) * 0.18;
+  screenGlow.intensity = 1.4 + Math.sin(t * 0.65) * 0.1;
+  monitorScreen.material.emissiveIntensity = 0.85 + Math.sin(t*0.5)*0.05;
+
+  steamArr.forEach((s, i) => {
+    s.position.y += 0.0028;
+    s.position.x += Math.sin(t * 0.9 + i) * 0.0008;
+    const progress = (s.position.y - 0.69) / 0.65;
+    s.material.opacity = Math.max(0, 0.14 * (1 - progress));
+    if (s.position.y > 1.36) { s.position.y = 0.69; s.position.x = -0.55 + (Math.random()-0.5)*0.04; }
+  });
+
+  renderer.render(scene, camera);
+}
+animate();
+
+/* ───── RESIZE ───── */
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+/* ───── CONTACT ───── */
+const contactLines = [
+  'Lakshay Chopra',
+  'Program Manager · AI & Automation CoE',
+  '',
+  '📧  lakshaychopra1@email.com',
+  '💼  linkedin.com/in/lakshaychopra95',
+  '📍  India',
+  '',
+  '✨  Open to exciting opportunities'
+];
+
+function showContact() {
+  const panel = document.getElementById('contact-panel');
+  panel.style.display = 'block';
+  gsap.fromTo(panel, { y:30, opacity:0 }, { y:0, opacity:1, duration:0.4, ease:'power2.out' });
+  runTypewriter();
+  gsap.to(mug.rotation, { y: '+=1.2', duration:0.55, ease:'power2.out' });
+}
+function hideContact() {
+  gsap.to(document.getElementById('contact-panel'), {
+    y:30, opacity:0, duration:0.3,
+    onComplete: () => { document.getElementById('contact-panel').style.display='none'; }
+  });
+}
+function runTypewriter() {
+  const el = document.getElementById('typewriter-text');
+  el.innerHTML = '';
+  let li=0, ci=0, html='';
+  function next() {
+    if (li >= contactLines.length) { el.innerHTML = html; return; }
+    const line = contactLines[li];
+    if (ci === 0 && li > 0) html += '<br>';
+    if (ci < line.length) {
+      html += line[ci++];
+      el.innerHTML = html + '<span style="opacity:0.5">▌</span>';
+      setTimeout(next, 35);
+    } else { li++; ci=0; setTimeout(next, line===''?80:200); }
+  }
+  next();
+}
+
+/* ───── SCROLL NAV ───── */
+function scrollToId(id) { document.getElementById(id)?.scrollIntoView({ behavior:'smooth' }); }
+
+/* ───── HERO ENTRANCE ───── */
+gsap.fromTo('.hero-text-col > *',
+  { y:50, opacity:0 },
+  { y:0, opacity:1, stagger:0.18, duration:1.1, ease:'power3.out', delay:0.4 }
+);
+gsap.fromTo('.avatar-frame',
+  { y:30, opacity:0 },
+  { y:0, opacity:1, duration:1.3, ease:'power3.out', delay:0.2 }
+);
+</script>
+</body>
+</html>
+
+create a website of the above and check if there are any issues. if yes then fix them. add this image as part of the code make it motion sensing if possible. 
