@@ -1,0 +1,181 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lakshay Chopra - CoE Portfolio</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+  <div id="cursor-glow"></div>
+  <div id="progress-bar"></div>
+
+  <nav>
+    <div class="nav-logo">LC Portfolio</div>
+    <div class="nav-links">
+      <a onclick="scrollToTop()">Home</a>
+      <a onclick="scrollToId('exp-sbi')">SBI Card</a>
+      <a onclick="scrollToId('exp-hsbc')">HSBC</a>
+      <a onclick="scrollToId('exp-cap')">Capgemini</a>
+      <a onclick="scrollToId('impact')">Impact</a>
+      <a onclick="showContact()">Contact</a>
+    </div>
+  </nav>
+
+  <div id="canvas-container">
+    <canvas id="three-canvas"></canvas>
+  </div>
+
+  <div id="scroll-container">
+
+    <!-- HERO -->
+    <section id="hero">
+      <div class="hero-image-col">
+        <div class="hero-glow-ring"></div>
+        <div class="avatar-frame">
+          <img id="hero-avatar" src="base.jpg" alt="Lakshay Chopra - 3D Avatar" />
+          <div class="avatar-badge">Available for opportunities</div>
+        </div>
+      </div>
+      <div class="hero-text-col">
+        <div class="hero-eyebrow"></div>
+        <h1 class="hero-title">Lakshay<br><span>Chopra</span></h1>
+        <p class="hero-role">
+          Program Manager - AI and Automation CoE<br>
+          Building scalable automation at enterprise scale.<br>
+          SBI Card, HSBC, Capgemini
+        </p>
+        <div class="hero-cta">
+          <div class="dot-live"></div> Scroll to explore
+        </div>
+      </div>
+    </section>
+
+    <!-- SBI CARD -->
+    <section class="section section-left" id="exp-sbi">
+      <div class="section-content card">
+        <div class="glow-line"></div>
+        <div class="card-eyebrow">SBI Card - 2025 - Present</div>
+        <div class="card-title">Vector-Based Search Implementation</div>
+        <div class="card-body">Led the Centre of Excellence for AI and Automation at SBI Card, architecting a semantic
+          vector search system that transformed query performance across enterprise knowledge bases. Delivered INR 3.94
+          Cr in measured business benefit.</div>
+        <div class="stat-row">
+          <div class="stat">
+            <div class="stat-val">40s - 10s</div>
+            <div class="stat-lbl">Query Time</div>
+          </div>
+          <div class="stat">
+            <div class="stat-val">75%</div>
+            <div class="stat-lbl">Faster Search</div>
+          </div>
+          <div class="stat">
+            <div class="stat-val">INR 3.94 Cr</div>
+            <div class="stat-lbl">Business Benefit</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HSBC -->
+    <section class="section section-right" id="exp-hsbc">
+      <div class="section-content card">
+        <div class="glow-line"></div>
+        <div class="card-eyebrow">HSBC - 2023 - 2025</div>
+        <div class="card-title">Enterprise Bot Governance</div>
+        <div class="card-body">Governed a portfolio of 176 plus RPA bots across global HSBC operations. Established CoE
+          maturity frameworks, compliance controls, and performance monitoring dashboards, driving a 30% reduction in
+          global process shrinkage.</div>
+        <div class="stat-row">
+          <div class="stat">
+            <div class="stat-val">176 plus</div>
+            <div class="stat-lbl">Bots Governed</div>
+          </div>
+          <div class="stat">
+            <div class="stat-val">30%</div>
+            <div class="stat-lbl">Shrinkage Reduced</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CAPGEMINI -->
+    <section class="section section-left" id="exp-cap">
+      <div class="section-content card">
+        <div class="glow-line"></div>
+        <div class="card-eyebrow">Capgemini - 2022 - 2023</div>
+        <div class="card-title">Solution Architecture &amp; Team Leadership</div>
+        <div class="card-body">Drove RPA solution architecture and cross-functional team leadership for enterprise
+          clients. Established automation best practices, built CoE governance models, and delivered high-complexity
+          implementations end-to-end.</div>
+        <div class="stat-row">
+          <div class="stat">
+            <div class="stat-val">CoE</div>
+            <div class="stat-lbl">Architecture</div>
+          </div>
+          <div class="stat">
+            <div class="stat-val">Multi-Org</div>
+            <div class="stat-lbl">Team Lead</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- IMPACT GALLERY -->
+    <section class="section section-center" id="impact">
+      <div class="section-content card" style="max-width:600px;width:100%;">
+        <div class="glow-line"></div>
+        <div class="card-eyebrow">Impact Gallery - Holographic Metrics</div>
+        <div class="card-title">Numbers that moved the needle</div>
+        <div class="impact-grid">
+          <div class="impact-card">
+            <div class="impact-num">INR 3.94Cr</div>
+            <div class="impact-desc">Business benefit - SBI Card</div>
+          </div>
+          <div class="impact-card">
+            <div class="impact-num">75%</div>
+            <div class="impact-desc">Search time reduction</div>
+          </div>
+          <div class="impact-card">
+            <div class="impact-num">176 plus</div>
+            <div class="impact-desc">Bots governed - HSBC</div>
+          </div>
+          <div class="impact-card">
+            <div class="impact-num">30%</div>
+            <div class="impact-desc">Global shrinkage reduced</div>
+          </div>
+        </div>
+        <div class="mug-hint">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M7 16h10V7H7v9zm0 0v2a2 2 0 002 2h6a2 2 0 002-2v-2M17 10h2a2 2 0 010 4h-2" />
+          </svg>
+          Click the 3D coffee mug or the Contact link above to say hello
+        </div>
+      </div>
+    </section>
+
+    <div class="spacer"></div>
+  </div>
+
+  <div class="scroll-hint" id="scroll-hint">
+    <div class="scroll-arrow"></div>
+    <span>Scroll</span>
+  </div>
+
+  <div id="contact-panel">
+    <button id="contact-close" onclick="hideContact()">âœ•</button>
+    <div class="panel-eyebrow">Say hello - Lakshay Chopra</div>
+    <div class="typewriter" id="typewriter-text"></div>
+  </div>
+
+  <!-- THREE.JS & GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>
